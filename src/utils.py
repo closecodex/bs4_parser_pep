@@ -7,7 +7,7 @@ from exceptions import ParserFindTagException
 
 def get_response(session, url):
     try:
-        response = session.get(url) 
+        response = session.get(url)
         response.encoding = 'utf-8'
         return response
     except RequestException:
@@ -15,6 +15,7 @@ def get_response(session, url):
             f'Возникла ошибка при загрузке страницы {url}',
             stack_info=True
         )
+
 
 def find_tag(soup, tag, attrs=None):
     searched_tag = soup.find(tag, attrs=(attrs or {}))
