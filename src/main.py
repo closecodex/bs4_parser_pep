@@ -131,7 +131,6 @@ def pep(session):
         status_tag = find_tag(pep_soup, 'dt', string='Status')
         status = status_tag.find_next_sibling('dd').string
 
-        pep_number = link.text.strip()
         if status not in results:
             results[status] = 0
         results[status] += 1
@@ -159,6 +158,7 @@ def pep(session):
         logging.warning('\n'.join(inconsistencies))
 
     logging.info(f'Результаты парсинга сохранены в {results_path}')
+
 
 MODE_TO_FUNCTION = {
     'whats-new': whats_new,
@@ -188,6 +188,7 @@ def main():
         control_output(results, args)
 
     logging.info('Парсер завершил работу.')
+
 
 if __name__ == '__main__':
     main()

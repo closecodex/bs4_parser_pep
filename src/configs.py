@@ -48,6 +48,7 @@ def configure_logging():
 
         handlers=[
             logging.StreamHandler(sys.stdout),
-            logging.FileHandler("parser.log", mode="w", encoding="utf-8")
+            logging.FileHandler("parser.log", mode="w", encoding="utf-8"),
+            rotating_handler
         ]
     )
