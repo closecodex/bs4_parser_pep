@@ -12,6 +12,7 @@ from configs import configure_argument_parser, configure_logging
 from constants import BASE_DIR, MAIN_DOC_URL, PEP_INDEX_URL
 from outputs import control_output
 
+
 def whats_new(session):
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)
@@ -19,14 +20,18 @@ def whats_new(session):
         return []
 
     soup = BeautifulSoup(response.text, 'lxml')
-    main_section = find_tag(soup, 'section', attrs={'id': 'what-s-new-in-python'})
+    main_section = find_tag(
+        soup, 'section', attrs={'id': 'what-s-new-in-python'}
+    )
     sections = main_section.find_all('div', class_='toctree-wrapper compound')
 
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
     for section in tqdm(sections):
         h2_tag = section.find('h2')
         if h2_tag is None:
-            logging.warning(f'Не удалось найти необходимый тег в секции: {section}')
+            logging.warning(
+                f'Не удалось найти необходимый тег в секции: {section}'
+            )
             continue
         version_text = h2_tag.text.strip()
         link_tag = section.find('a')
@@ -36,6 +41,7 @@ def whats_new(session):
         logging.info(f'Парсинг нововведений для версии: {version_text}')
 
     return results
+
 
 def latest_versions(session):
     response = get_response(session, MAIN_DOC_URL)
@@ -53,7 +59,7 @@ def latest_versions(session):
             for a_tag in a_tags:
                 href = urljoin(MAIN_DOC_URL, a_tag['href'])
                 version_text = a_tag.text
-                status = 'EOL'  
+                status = 'EOL'
 
                 if 'in development' in version_text.lower():
                     status = 'in development'
@@ -65,9 +71,12 @@ def latest_versions(session):
                     status = 'pre-release'
 
                 results.append((href, version_text, status))
-                logging.info(f'Найдена версия: {version_text} со статусом: {status}')
+                logging.info(
+                    f'Найдена версия: {version_text} со статусом: {status}'
+                )
 
     return results
+
 
 def download(session):
     downloads_url = urljoin(MAIN_DOC_URL, 'download.html')
@@ -95,6 +104,7 @@ def download(session):
         file.write(response.content)
     logging.info(f'Архив был загружен и сохранён: {archive_path}')
     print(f'Файл сохранён по пути: {archive_path}')
+
 
 def pep(session):
     """Парсинг статусов PEP-документов."""
@@ -154,6 +164,7 @@ MODE_TO_FUNCTION = {
     'download': download,
     'pep': pep,
 }
+
 
 def main():
     configure_logging()
