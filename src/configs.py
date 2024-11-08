@@ -8,6 +8,7 @@ from constants import (
     LOG_DIR, LOG_FILE_PATH, OUTPUT_FORMATS
 )
 
+
 def configure_argument_parser(available_modes):
     parser = argparse.ArgumentParser(description='Парсер документации Python')
     parser.add_argument(
@@ -29,10 +30,11 @@ def configure_argument_parser(available_modes):
     )
     return parser
 
+
 def configure_logging():
     log_dir = LOG_DIR
     log_dir.mkdir(exist_ok=True)
-    
+
     rotating_handler = RotatingFileHandler(
         LOG_FILE_PATH, maxBytes=10 ** 6, backupCount=5
     )

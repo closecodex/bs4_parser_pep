@@ -1,6 +1,4 @@
-import csv
 import logging
-import re
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
@@ -11,7 +9,7 @@ from collections import defaultdict
 
 from configs import configure_argument_parser, configure_logging
 from constants import (
-    BASE_DIR, MAIN_DOC_URL, PEP_INDEX_URL, DOWNLOADS_DIR, get_downloads_dir
+    BASE_DIR, MAIN_DOC_URL, PEP_INDEX_URL, get_downloads_dir
 )
 from outputs import control_output
 from utils import find_tag, get_response
@@ -37,7 +35,9 @@ def whats_new(session):
     soup = get_soup(session, whats_new_url)
     if soup is None:
         return []
-    main_section = find_tag(soup, 'section', attrs={'id': 'what-s-new-in-python'})
+    main_section = find_tag(
+        soup, 'section', attrs={'id': 'what-s-new-in-python'}
+    )
     sections = main_section.find_all('div', class_='toctree-wrapper compound')
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
     errors = []
@@ -136,7 +136,9 @@ def pep(session):
         for pep in failed_peps:
             logging.warning(pep)
     total = sum(results.values())
-    results_data = [('Статус', 'Количество')] + list(results.items()) + [('Total', total)]
+    results_data = (
+        [('Статус', 'Количество')] + list(results.items()) + [('Total', total)]
+    )
     return results_data
 
 
@@ -166,10 +168,11 @@ def main():
 
         if results:
             control_output(results, args)
-    except Exception as e:
+    except Exception:
         logging.exception(ERROR_MESSAGE)
     else:
         logging.info(PARSING_FINISHED_MESSAGE)
+
 
 if __name__ == '__main__':
     main()
