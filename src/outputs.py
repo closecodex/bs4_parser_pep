@@ -35,7 +35,9 @@ def file_output(results, cli_args):
     for old_file in results_dir.glob('*.csv'):
         old_file.unlink()
 
-    file_name = f"{cli_args.mode}_{dt.datetime.now().strftime(DATETIME_FORMAT)}.csv"
+    file_name = (
+        f"{cli_args.mode}_{dt.datetime.now().strftime(DATETIME_FORMAT)}.csv"
+    )
     file_path = results_dir / file_name
 
     with open(file_path, 'w', encoding='utf-8') as f:
