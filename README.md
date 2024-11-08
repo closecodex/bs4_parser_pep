@@ -7,16 +7,25 @@
 ## Установка и настройка
 
 1. **Клонирование репозитория:**
+    
+    ```bash
     git clone git@github.com:closecodex/bs4_parser_pep.git
     cd bs4_parser_pep
+    ```
 
 2. **Создание и активация виртуального окружения:**
+
+    ```bash
     python -m venv venv
     source venv\Scripts\activate
+    ```
 
 3. **Обновление менеджера пакетов и установка зависимостей:**
+   
+   ```bash
    python -m pip install --upgrade pip
    pip install -r requirements.txt
+   ```
 
 ## Позиционные аргументы:
 
@@ -28,8 +37,24 @@
 
 4. **pep: Парсинг статусов PEP-документов.**
 
-## Тестирование
+## Запуск проекта
 
-**Для запуска тестов используйте команду:**
-    pytest
+Для запуска парсера используйте следующую команду:
 
+   ```bash
+   python main.py <аргумент>
+   ```
+
+## Доступ к справке
+
+Для получения информации о доступных аргументах и опциях используйте флаг `-h`:
+
+   ```bash
+   python main.py -h
+   ```
+
+## Дополнительная информация
+
+1. **Автор: Мария Осмоловская (closecodex@github.com)**
+
+2. **Техно-стек: Python, BeautifulSoup4, requests, argparse, logging**
