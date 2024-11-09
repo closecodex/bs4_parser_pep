@@ -5,9 +5,10 @@ import logging
 from prettytable import PrettyTable
 
 from constants import (
-    BASE_DIR, DATETIME_FORMAT, RESULTS_DIR_NAME, 
+    BASE_DIR, DATETIME_FORMAT, RESULTS_DIR_NAME,
     SAVE_MESSAGE, OUTPUT_FORMAT_FILE, OUTPUT_FORMAT_PRETTY
 )
+
 
 def default_output(results, *args, **kwargs):
     for row in results:
@@ -40,4 +41,4 @@ OUTPUT_FUNCTIONS = {
 
 
 def control_output(results, cli_args):
-    OUTPUT_FUNCTIONS.get(cli_args.output, default_output)(results, cli_args) 
+    OUTPUT_FUNCTIONS.get(cli_args.output, default_output)(results, cli_args)

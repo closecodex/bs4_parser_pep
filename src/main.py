@@ -48,7 +48,10 @@ def whats_new(session):
         link = urljoin(whats_new_url, link_tag['href'])
         new_page_soup = get_soup(session, link)
         author_tag = new_page_soup.find('p', class_='author')
-        author_text = author_tag.text.strip() if author_tag else 'Неизвестный автор'
+        author_text = (
+            author_tag.text.strip()
+            if author_tag else 'Неизвестный автор'
+        )
         results.append((link, version_text, author_text))
     for error in errors:
         logging.warning(error)
@@ -107,13 +110,17 @@ def pep(session):
         try:
             pep_soup = get_soup(session, pep_link)
         except Exception as e:
-            failed_peps.append(f'Не удалось загрузить страницу {pep_link}: {e}')
+            failed_peps.append(
+                f'Не удалось загрузить страницу {pep_link}: {e}'
+            )
             continue
         try:
             status_tag = find_tag(pep_soup, 'dt', string='Status')
             status = status_tag.find_next_sibling('dd').text.strip()
         except ParserFindTagException:
-            failed_peps.append(f'Не удалось найти статус на странице {pep_link}')
+            failed_peps.append(
+                f'Не удалось найти статус на странице {pep_link}'
+            )
             continue
         results[status] += 1
         expected_status = link.parent.find_next_sibling('td').text.strip()
@@ -135,7 +142,6 @@ def pep(session):
         *results.items(),
         ('Total', sum(results.values())),
     ]
-
 
 
 MODE_TO_FUNCTION = {
