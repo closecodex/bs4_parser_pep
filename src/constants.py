@@ -11,14 +11,15 @@ LOG_DIR = BASE_DIR / LOG_DIR_NAME
 LOG_FILE_NAME = 'parser.log'
 LOG_FILE_PATH = LOG_DIR / LOG_FILE_NAME
 
+DOWNLOADS_DIR_NAME = 'downloads'
+
 
 def get_downloads_dir(base_dir=None):
-    if base_dir is None:
-        base_dir = Path(__file__).parent
-    return base_dir / 'downloads'
+    return base_dir / DOWNLOADS_DIR_NAME
 
 
-OUTPUT_FORMATS = ('pretty', 'file')
+OUTPUT_FORMAT_PRETTY = 'pretty'
+OUTPUT_FORMAT_FILE = 'file'
 LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
 DT_FORMAT = '%d.%m.%Y %H:%M:%S'
 

@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 
 from constants import (
     LOG_FORMAT, DT_FORMAT,
-    LOG_DIR, LOG_FILE_PATH, OUTPUT_FORMATS
+    LOG_DIR, LOG_FILE_PATH, OUTPUT_FORMAT_FILE, OUTPUT_FORMAT_PRETTY
 )
 
 
@@ -25,7 +25,7 @@ def configure_argument_parser(available_modes):
     parser.add_argument(
         '-o',
         '--output',
-        choices=OUTPUT_FORMATS,
+        choices=(OUTPUT_FORMAT_PRETTY, OUTPUT_FORMAT_FILE),
         help='Дополнительные способы вывода данных'
     )
     return parser

@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from requests import RequestException
 
 from exceptions import ParserFindTagException
@@ -6,13 +7,18 @@ ERROR_LOAD_PAGE = 'Возникла ошибка при загрузке стр�
 ERROR_TAG_NOT_FOUND = 'Не найден тег {} {}'
 
 
+class InvalidResponseError(Exception):
+    """Ошибка при получении ответа от сервера."""
+    pass
+
+
 def get_response(session, url, encoding='utf-8'):
     try:
         response = session.get(url)
         response.encoding = encoding
         return response
     except RequestException as e:
-        raise RequestException(ERROR_LOAD_PAGE.format(url)) from e
+        raise InvalidResponseError(ERROR_LOAD_PAGE.format(url, e)) from e
 
 
 def find_tag(soup, tag, attrs=None):
@@ -28,3 +34,7 @@ def find_tag(soup, tag, attrs=None):
             ERROR_TAG_NOT_FOUND.format(tag, attrs_message)
         )
     return searched_tag
+
+
+def get_soup(session, url, parser='lxml'):
+    return BeautifulSoup(get_response(session, url).text, parser)
