@@ -2,7 +2,6 @@ import logging
 from collections import defaultdict
 from urllib.parse import urljoin
 
-from bs4 import BeautifulSoup
 import requests_cache
 from tqdm import tqdm
 
@@ -113,7 +112,8 @@ def pep(session):
         if expected_status and expected_status != status:
             inconsistencies.append(
                 INCONSISTENCY_MESSAGE.format(
-                    pep_link=pep_link, status=status, expected_status=expected_status
+                    pep_link=pep_link, status=status,
+                    expected_status=expected_status
                 )
             )
     if inconsistencies:

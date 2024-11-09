@@ -16,12 +16,14 @@ def default_output(results, *args, **kwargs):
     for row in results:
         print(*row)
 
+
 def pretty_output(results, *args, **kwargs):
     table = PrettyTable()
     table.field_names = results[0]
     table.align = 'l'
     table.add_rows(results[1:])
     print(table)
+
 
 def file_output(results, cli_args):
     results_dir = BASE_DIR / RESULTS_DIR_NAME
@@ -33,11 +35,13 @@ def file_output(results, cli_args):
         csv.writer(file, dialect=csv.unix_dialect).writerows(results)
     logging.info(SAVE_MESSAGE.format(file_path=file_path))
 
+
 OUTPUT_FUNCTIONS = {
     OUTPUT_PRETTY: pretty_output,
     OUTPUT_FILE: file_output,
     OUTPUT_DEFAULT: default_output,
 }
+
 
 def control_output(results, cli_args):
     output_function = OUTPUT_FUNCTIONS.get(cli_args.output)
