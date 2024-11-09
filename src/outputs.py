@@ -4,13 +4,10 @@ import logging
 
 from prettytable import PrettyTable
 
-from constants import BASE_DIR, DATETIME_FORMAT, RESULTS_DIR_NAME, SAVE_MESSAGE
-
-
-OUTPUT_PRETTY = 'pretty'
-OUTPUT_FILE = 'file'
-OUTPUT_DEFAULT = 'default'
-
+from constants import (
+    BASE_DIR, DATETIME_FORMAT, RESULTS_DIR_NAME, 
+    SAVE_MESSAGE, OUTPUT_FORMAT_FILE, OUTPUT_FORMAT_PRETTY
+)
 
 def default_output(results, *args, **kwargs):
     for row in results:
@@ -37,14 +34,10 @@ def file_output(results, cli_args):
 
 
 OUTPUT_FUNCTIONS = {
-    OUTPUT_PRETTY: pretty_output,
-    OUTPUT_FILE: file_output,
-    OUTPUT_DEFAULT: default_output,
+    OUTPUT_FORMAT_PRETTY: pretty_output,
+    OUTPUT_FORMAT_FILE: file_output,
 }
 
 
 def control_output(results, cli_args):
-    output_function = OUTPUT_FUNCTIONS.get(cli_args.output)
-    if not output_function:
-        output_function = default_output
-    output_function(results, cli_args)
+    OUTPUT_FUNCTIONS.get(cli_args.output, default_output)(results, cli_args) 

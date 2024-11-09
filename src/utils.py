@@ -3,13 +3,8 @@ from requests import RequestException
 
 from exceptions import ParserFindTagException
 
-ERROR_LOAD_PAGE = 'Возникла ошибка при загрузке страницы {}'
+ERROR_LOAD_PAGE = 'Возникла ошибка при загрузке страницы {}: {}'
 ERROR_TAG_NOT_FOUND = 'Не найден тег {} {}'
-
-
-class InvalidResponseError(Exception):
-    """Ошибка при получении ответа от сервера."""
-    pass
 
 
 def get_response(session, url, encoding='utf-8'):
@@ -18,7 +13,7 @@ def get_response(session, url, encoding='utf-8'):
         response.encoding = encoding
         return response
     except RequestException as e:
-        raise InvalidResponseError(ERROR_LOAD_PAGE.format(url, e)) from e
+        raise RuntimeError(ERROR_LOAD_PAGE.format(url, str(e))) from e
 
 
 def find_tag(soup, tag, attrs=None):
