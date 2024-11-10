@@ -134,9 +134,9 @@ def pep(session):
 
 
 def process_pep_link(
-        session, pep_link, link, results,
-        inconsistencies, failed_peps
-    ):
+    session, pep_link, link, results,
+    inconsistencies, failed_peps
+):
     try:
         pep_soup = get_soup(session, pep_link)
     except (requests.exceptions.ConnectionError,
