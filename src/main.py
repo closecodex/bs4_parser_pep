@@ -118,7 +118,10 @@ def pep(session):
 
     for link in tqdm(pep_links):
         pep_link = urljoin(PEP_INDEX_URL, link['href'])
-        process_pep_link(session, pep_link, link, results, inconsistencies, failed_peps)
+        process_pep_link(
+            session, pep_link, link, results,
+            inconsistencies, failed_peps
+        )
 
     log_inconsistencies(inconsistencies)
     log_failed_peps(failed_peps)
@@ -130,7 +133,10 @@ def pep(session):
     ]
 
 
-def process_pep_link(session, pep_link, link, results, inconsistencies, failed_peps):
+def process_pep_link(
+        session, pep_link, link, results,
+        inconsistencies, failed_peps
+    ):
     try:
         pep_soup = get_soup(session, pep_link)
     except (requests.exceptions.ConnectionError,
