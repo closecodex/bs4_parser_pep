@@ -115,52 +115,60 @@ def pep(session):
     results = defaultdict(int)
     inconsistencies = []
     failed_peps = []
+
     for link in tqdm(pep_links):
         pep_link = urljoin(PEP_INDEX_URL, link['href'])
-        try:
-            pep_soup = get_soup(session, pep_link)
-        except requests.exceptions.ConnectionError as e:
-            failed_peps.append(
-                ERROR_PEP_LOAD_FAILED.format(pep_link, e)
-            )
-            continue
-        except requests.exceptions.HTTPError as e:
-            failed_peps.append(
-                ERROR_PEP_LOAD_FAILED.format(pep_link, e)
-            )
-            continue
-        except requests.exceptions.Timeout as e:
-            failed_peps.append(
-                ERROR_PEP_LOAD_FAILED.format(pep_link, e)
-            )
-            continue
+        process_pep_link(session, pep_link, link, results, inconsistencies, failed_peps)
 
-        status_tag = find_tag(pep_soup, 'dt', string='Status')
-        if status_tag is None:
-            failed_peps.append(ERROR_STATUS_NOT_FOUND.format(pep_link))
-            continue
+    log_inconsistencies(inconsistencies)
+    log_failed_peps(failed_peps)
 
-        status = status_tag.find_next_sibling('dd').text.strip()
-        results[status] += 1
-        expected_status = link.parent.find_next_sibling('td').text.strip()
-        if expected_status and expected_status != status:
-            inconsistencies.append(
-                INCONSISTENCY_MESSAGE.format(
-                    pep_link=pep_link, status=status,
-                    expected_status=expected_status
-                )
-            )
-    for inconsistency in inconsistencies:
-        logging.warning(inconsistency)
-    if failed_peps:
-        logging.warning(FAILED_PEPS_MESSAGE)
-        for pep in failed_peps:
-            logging.warning(pep)
     return [
         ('Статус', 'Количество'),
         *results.items(),
         ('Total', sum(results.values())),
     ]
+
+
+def process_pep_link(session, pep_link, link, results, inconsistencies, failed_peps):
+    try:
+        pep_soup = get_soup(session, pep_link)
+    except (requests.exceptions.ConnectionError,
+            requests.exceptions.HTTPError,
+            requests.exceptions.Timeout) as e:
+        failed_peps.append(ERROR_PEP_LOAD_FAILED.format(pep_link, e))
+        return
+
+    status_tag = find_tag(pep_soup, 'dt', string='Status')
+    if status_tag is None:
+        failed_peps.append(ERROR_STATUS_NOT_FOUND.format(pep_link))
+        return
+
+    status = status_tag.find_next_sibling('dd').text.strip()
+    results[status] += 1
+
+    expected_status = link.parent.find_next_sibling('td').text.strip()
+    if expected_status and expected_status != status:
+        inconsistencies.append(
+            INCONSISTENCY_MESSAGE.format(
+                pep_link=pep_link,
+                status=status,
+                expected_status=expected_status
+            )
+        )
+
+
+def log_inconsistencies(inconsistencies):
+    """Логирует все несоответствия статусов PEP."""
+    if inconsistencies:
+        logging.warning("\n".join(inconsistencies))
+
+
+def log_failed_peps(failed_peps):
+    """Логирует все ошибки при загрузке PEP."""
+    if failed_peps:
+        logging.warning(FAILED_PEPS_MESSAGE)
+        logging.warning("\n".join(failed_peps))
 
 
 MODE_TO_FUNCTION = {
