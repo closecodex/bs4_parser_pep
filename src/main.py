@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 from urllib.parse import urljoin
 
+from requests import RequestException
 import requests_cache
 from tqdm import tqdm
 
@@ -11,7 +12,6 @@ from constants import (
     BASE_DIR, MAIN_DOC_URL, PEP_INDEX_URL, get_downloads_dir
 )
 from outputs import control_output
-from exceptions import ParserFindTagException
 from utils import find_tag, get_response, get_soup
 
 ARCHIVE_SAVED_MESSAGE = 'Архив был загружен и сохранён: {archive_path}'
@@ -21,6 +21,11 @@ ARGS_MESSAGE = 'Аргументы командной строки: {args}'
 CACHE_CLEARED_MESSAGE = 'Кеш очищен.'
 PARSING_FINISHED_MESSAGE = 'Парсер завершил работу.'
 ERROR_MESSAGE = 'Ошибка при выполнении программы'
+ERROR_H2_NOT_FOUND = 'Не найден тег h2 в секции: {}'
+ERROR_PEP_LOAD_FAILED = 'Не удалось загрузить страницу {}: {}'
+ERROR_PAGE_LOAD_FAILED = 'Не удалось загрузить страницу {}: {}'
+ERROR_STATUS_NOT_FOUND = 'Не удалось найти статус на странице {}'
+DEFAULT_AUTHOR = 'Неизвестный автор'
 INCONSISTENCY_MESSAGE = (
     'Несовпадающие статусы:\n{pep_link}\n'
     'Статус в карточке: {status}\n'
@@ -41,16 +46,20 @@ def whats_new(session):
     for section in tqdm(sections):
         h2_tag = section.find('h2')
         if h2_tag is None:
-            errors.append(f'Не найден тег h2 в секции: {section}')
+            errors.append(ERROR_H2_NOT_FOUND.format(section))
             continue
         version_text = h2_tag.text.strip()
         link_tag = section.find('a')
         link = urljoin(whats_new_url, link_tag['href'])
-        new_page_soup = get_soup(session, link)
+        try:
+            new_page_soup = get_soup(session, link)
+        except Exception as e:
+            errors.append(ERROR_PAGE_LOAD_FAILED.format(link, e))
+            continue
         author_tag = new_page_soup.find('p', class_='author')
         author_text = (
             author_tag.text.strip()
-            if author_tag else 'Неизвестный автор'
+            if author_tag else DEFAULT_AUTHOR
         )
         results.append((link, version_text, author_text))
     for error in errors:
@@ -109,19 +118,17 @@ def pep(session):
         pep_link = urljoin(PEP_INDEX_URL, link['href'])
         try:
             pep_soup = get_soup(session, pep_link)
-        except Exception as e:
+        except RequestException as e:
             failed_peps.append(
-                f'Не удалось загрузить страницу {pep_link}: {e}'
+                ERROR_PEP_LOAD_FAILED.format(pep_link, e)
             )
             continue
-        try:
-            status_tag = find_tag(pep_soup, 'dt', string='Status')
-            status = status_tag.find_next_sibling('dd').text.strip()
-        except ParserFindTagException:
-            failed_peps.append(
-                f'Не удалось найти статус на странице {pep_link}'
-            )
+        status_tag = find_tag(pep_soup, 'dt', string='Status')
+        if status_tag is None:
+            failed_peps.append(ERROR_STATUS_NOT_FOUND.format(pep_link))
             continue
+
+        status = status_tag.find_next_sibling('dd').text.strip()
         results[status] += 1
         expected_status = link.parent.find_next_sibling('td').text.strip()
         if expected_status and expected_status != status:

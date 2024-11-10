@@ -20,6 +20,8 @@ def get_downloads_dir(base_dir=None):
 
 OUTPUT_FORMAT_PRETTY = 'pretty'
 OUTPUT_FORMAT_FILE = 'file'
+OUTPUT_FORMAT_SILENT = 'silent'
+OUTPUT_FORMAT_DEFAULT = None
 LOG_FORMAT = '%(asctime)s - [%(levelname)s] - %(message)s'
 DT_FORMAT = '%d.%m.%Y %H:%M:%S'
 

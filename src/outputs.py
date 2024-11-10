@@ -3,13 +3,13 @@ import datetime as dt
 import logging
 
 from prettytable import PrettyTable
-
+ 
 from constants import (
     BASE_DIR, DATETIME_FORMAT, RESULTS_DIR_NAME,
-    SAVE_MESSAGE, OUTPUT_FORMAT_FILE, OUTPUT_FORMAT_PRETTY
+    SAVE_MESSAGE, OUTPUT_FORMAT_FILE, OUTPUT_FORMAT_PRETTY, OUTPUT_FORMAT_DEFAULT
 )
 
-
+ 
 def default_output(results, *args, **kwargs):
     for row in results:
         print(*row)
@@ -37,8 +37,12 @@ def file_output(results, cli_args):
 OUTPUT_FUNCTIONS = {
     OUTPUT_FORMAT_PRETTY: pretty_output,
     OUTPUT_FORMAT_FILE: file_output,
+    OUTPUT_FORMAT_DEFAULT: default_output,
 }
 
-
 def control_output(results, cli_args):
-    OUTPUT_FUNCTIONS.get(cli_args.output, default_output)(results, cli_args)
+    output = cli_args.output
+    if output == 'file':
+        OUTPUT_FUNCTIONS[output](results, cli_args)
+    else:
+        OUTPUT_FUNCTIONS[output](results)
