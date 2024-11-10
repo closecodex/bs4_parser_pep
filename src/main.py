@@ -3,6 +3,7 @@ from collections import defaultdict
 from urllib.parse import urljoin
 
 from requests import RequestException
+import requests
 import requests_cache
 from tqdm import tqdm
 
@@ -53,17 +54,19 @@ def whats_new(session):
         link = urljoin(whats_new_url, link_tag['href'])
         try:
             new_page_soup = get_soup(session, link)
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             errors.append(ERROR_PAGE_LOAD_FAILED.format(link, e))
             continue
+
         author_tag = new_page_soup.find('p', class_='author')
         author_text = (
             author_tag.text.strip()
             if author_tag else DEFAULT_AUTHOR
         )
         results.append((link, version_text, author_text))
-    for error in errors:
-        logging.warning(error)
+    if errors:
+        logging.warning("\n".join(errors))
+
     return results
 
 
@@ -118,11 +121,22 @@ def pep(session):
         pep_link = urljoin(PEP_INDEX_URL, link['href'])
         try:
             pep_soup = get_soup(session, pep_link)
-        except RequestException as e:
+        except requests.exceptions.ConnectionError as e:
             failed_peps.append(
                 ERROR_PEP_LOAD_FAILED.format(pep_link, e)
             )
             continue
+        except requests.exceptions.HTTPError as e:
+            failed_peps.append(
+                ERROR_PEP_LOAD_FAILED.format(pep_link, e)
+            )
+            continue
+        except requests.exceptions.Timeout as e:
+            failed_peps.append(
+                ERROR_PEP_LOAD_FAILED.format(pep_link, e)
+            )
+            continue
+
         status_tag = find_tag(pep_soup, 'dt', string='Status')
         if status_tag is None:
             failed_peps.append(ERROR_STATUS_NOT_FOUND.format(pep_link))

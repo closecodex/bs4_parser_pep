@@ -6,8 +6,7 @@ from prettytable import PrettyTable
 
 from constants import (
     BASE_DIR, DATETIME_FORMAT, RESULTS_DIR_NAME,
-    SAVE_MESSAGE, OUTPUT_FORMAT_FILE,
-    OUTPUT_FORMAT_PRETTY, OUTPUT_FORMAT_DEFAULT
+    SAVE_MESSAGE, OUTPUT_FORMAT_FILE, OUTPUT_FORMAT_PRETTY
 )
 
 
@@ -38,13 +37,12 @@ def file_output(results, cli_args):
 OUTPUT_FUNCTIONS = {
     OUTPUT_FORMAT_PRETTY: pretty_output,
     OUTPUT_FORMAT_FILE: file_output,
-    OUTPUT_FORMAT_DEFAULT: default_output,
+    'default': default_output,
 }
 
 
 def control_output(results, cli_args):
-    output = cli_args.output
-    if output == 'file':
-        OUTPUT_FUNCTIONS[output](results, cli_args)
-    else:
-        OUTPUT_FUNCTIONS[output](results)
+    output_format = cli_args.output if cli_args.output else 'default'
+    if output_format not in OUTPUT_FUNCTIONS:
+        raise ValueError(f"Неизвестный формат вывода: {output_format}")
+    OUTPUT_FUNCTIONS[output_format](results, cli_args)
