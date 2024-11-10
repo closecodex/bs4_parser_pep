@@ -2,11 +2,9 @@ import logging
 from collections import defaultdict
 from urllib.parse import urljoin
 
-from requests import RequestException
 import requests
 import requests_cache
 from tqdm import tqdm
-
 
 from configs import configure_argument_parser, configure_logging
 from constants import (
