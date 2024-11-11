@@ -10,7 +10,6 @@ from constants import (
     BASE_DIR, MAIN_DOC_URL, PEP_INDEX_URL, get_downloads_dir
 )
 from outputs import control_output
-from src.exceptions import PageLoadError
 from utils import find_tag, get_response, get_soup
 
 ARCHIVE_SAVED_MESSAGE = 'Архив был загружен и сохранён: {archive_path}'
@@ -141,7 +140,7 @@ def process_pep_link(
 ):
     try:
         pep_soup = get_soup(session, pep_link)
-    except PageLoadError as e:
+    except ConnectionError as e:
         failed_peps.append(ERROR_PEP_LOAD_FAILED.format(pep_link, e))
         return
 
