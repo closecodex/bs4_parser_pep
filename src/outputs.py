@@ -37,12 +37,11 @@ def file_output(results, cli_args):
 OUTPUT_FUNCTIONS = {
     OUTPUT_FORMAT_PRETTY: pretty_output,
     OUTPUT_FORMAT_FILE: file_output,
-    'default': default_output,
+    None: default_output
 }
 
 
 def control_output(results, cli_args):
-    output_format = cli_args.output if cli_args.output else 'default'
-    if output_format not in OUTPUT_FUNCTIONS:
-        raise ValueError(f"Неизвестный формат вывода: {output_format}")
-    OUTPUT_FUNCTIONS[output_format](results, cli_args)
+    output_format = cli_args.output or None
+    output_function = OUTPUT_FUNCTIONS[output_format]
+    output_function(results, cli_args)

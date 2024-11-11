@@ -2,7 +2,6 @@ import logging
 from collections import defaultdict
 from urllib.parse import urljoin
 
-import requests
 import requests_cache
 from tqdm import tqdm
 
@@ -11,6 +10,7 @@ from constants import (
     BASE_DIR, MAIN_DOC_URL, PEP_INDEX_URL, get_downloads_dir
 )
 from outputs import control_output
+from src.exceptions import PageLoadError
 from utils import find_tag, get_response, get_soup
 
 ARCHIVE_SAVED_MESSAGE = 'Архив был загружен и сохранён: {archive_path}'
@@ -52,7 +52,7 @@ def whats_new(session):
         link = urljoin(whats_new_url, link_tag['href'])
         try:
             new_page_soup = get_soup(session, link)
-        except requests.exceptions.RequestException as e:
+        except ConnectionError as e:
             errors.append(ERROR_PAGE_LOAD_FAILED.format(link, e))
             continue
 
@@ -63,7 +63,7 @@ def whats_new(session):
         )
         results.append((link, version_text, author_text))
     if errors:
-        logging.warning("\n".join(errors))
+        logging.warning('\n'.join(errors))
 
     return results
 
@@ -123,8 +123,10 @@ def pep(session):
             inconsistencies, failed_peps
         )
 
-    log_inconsistencies(inconsistencies)
-    log_failed_peps(failed_peps)
+    list(map(logging.warning, inconsistencies))
+    if failed_peps:
+        logging.warning(FAILED_PEPS_MESSAGE)
+        list(map(logging.warning, failed_peps))
 
     return [
         ('Статус', 'Количество'),
@@ -139,9 +141,7 @@ def process_pep_link(
 ):
     try:
         pep_soup = get_soup(session, pep_link)
-    except (requests.exceptions.ConnectionError,
-            requests.exceptions.HTTPError,
-            requests.exceptions.Timeout) as e:
+    except PageLoadError as e:
         failed_peps.append(ERROR_PEP_LOAD_FAILED.format(pep_link, e))
         return
 
@@ -162,19 +162,6 @@ def process_pep_link(
                 expected_status=expected_status
             )
         )
-
-
-def log_inconsistencies(inconsistencies):
-    """Логирует все несоответствия статусов PEP."""
-    if inconsistencies:
-        logging.warning("\n".join(inconsistencies))
-
-
-def log_failed_peps(failed_peps):
-    """Логирует все ошибки при загрузке PEP."""
-    if failed_peps:
-        logging.warning(FAILED_PEPS_MESSAGE)
-        logging.warning("\n".join(failed_peps))
 
 
 MODE_TO_FUNCTION = {
